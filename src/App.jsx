@@ -3,7 +3,9 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = 'http://127.0.0.1:8000/api/snippets';
+const ITEMS_PER_PAGE = 3;
 
+// ⭐ Étoiles scintillantes
 function Stars({ count = 150 }) {
   const stars = Array.from({ length: count }).map((_, i) => ({
     id: i,
@@ -32,7 +34,7 @@ function Stars({ count = 150 }) {
             duration: 3,
             repeat: Infinity,
             delay,
-            ease: "easeInOut",
+            ease: 'easeInOut',
           }}
         />
       ))}
@@ -40,73 +42,74 @@ function Stars({ count = 150 }) {
   );
 }
 
+// 📄 Fonctions flottantes colorées
 function FloatingFunctions() {
   const functions = [
     {
       code: (
-        <span className="text-white">
-          <span className="text-blue-400 font-bold">function</span>{' '}
+        <>
+          <span className="text-blue-500 font-bold">function</span>{' '}
           <span className="text-orange-400">greet</span>() {'{ '}
-          <span className="text-purple-400">console.log</span>('Hello React'); {'}'}
-        </span>
-      )
+          <span className="text-purple-600">console.log</span>('Hello React'); {'}'}
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-purple-400">body</span> {'{ '}
-          <span className="text-green-400">background-color:</span>{' '}
-          <span className="text-red-400">#f0f0f0</span>; {'}'}
-        </span>
-      )
+        <>
+          <span className="text-purple-600">body</span> {'{ '}
+          <span className="text-green-600">background-color:</span>{' '}
+          <span className="text-red-500">#f0f0f0</span>; {'}'}
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-pink-400 font-bold">&lt;?php</span> echo{' '}
-          <span className="text-red-400">'Hello PHP!'</span>;
-          <span className="text-pink-400 font-bold">?&gt;</span>
-        </span>
-      )
+        <>
+          <span className="text-pink-600 font-bold">&lt;?php</span> echo{' '}
+          <span className="text-red-500">'Hello PHP!'</span>;
+          <span className="text-pink-600 font-bold">?&gt;</span>
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-blue-400 font-bold">public void</span>{' '}
+        <>
+          <span className="text-blue-500 font-bold">public void</span>{' '}
           <span className="text-orange-400">run</span>() {'{ '}
-          <span className="text-purple-400">System.out.println</span>('Java'); {'}'}
-        </span>
-      )
+          <span className="text-purple-600">System.out.println</span>('Java'); {'}'}
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-purple-400">const</span>{' '}
+        <>
+          <span className="text-purple-600">const</span>{' '}
           <span className="text-orange-400">sum</span> = (a, b) =&gt; a + b;
-        </span>
-      )
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-purple-400">console.log</span>('Développement');
-        </span>
-      )
+        <>
+          <span className="text-purple-600">console.log</span>('Développement');
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-blue-400 font-bold">if</span> (isActive) {'{ '}start(); {' }'}
-        </span>
-      )
+        <>
+          <span className="text-blue-500 font-bold">if</span> (isActive) {'{ '}start(); {' }'}
+        </>
+      ),
     },
     {
       code: (
-        <span className="text-white">
-          <span className="text-purple-400">.container</span> {'{ '}
-          <span className="text-green-400">display:</span> flex; {'}'}
-        </span>
-      )
+        <>
+          <span className="text-purple-600">.container</span> {'{ '}
+          <span className="text-green-600">display:</span> flex; {'}'}
+        </>
+      ),
     },
   ];
 
@@ -117,15 +120,15 @@ function FloatingFunctions() {
           key={i}
           className="absolute"
           style={{
-            top: `${(i * 12) + 5}%`,
+            top: `${i * 12 + 5}%`,
             left: `${(i * 30) % 100}%`,
-            filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.6))',
+            filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.7))',
             whiteSpace: 'nowrap',
           }}
           animate={{
             y: ['0%', '-20%', '0%'],
             x: ['0%', '15%', '0%'],
-            opacity: [0.4, 0.9, 0.4],
+            opacity: [0.3, 0.7, 0.3],
           }}
           transition={{
             duration: 8,
@@ -146,8 +149,12 @@ export default function App() {
   const [snippets, setSnippets] = useState([]);
   const [filter, setFilter] = useState('');
   const [notification, setNotification] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { fetchSnippets(); }, [filter]);
+  useEffect(() => {
+    fetchSnippets();
+    setCurrentPage(1); // Reset page when filter changes
+  }, [filter]);
 
   const fetchSnippets = async () => {
     try {
@@ -181,6 +188,7 @@ export default function App() {
       setForm({ title: '', description: '', category: '', code: '' });
       fetchSnippets();
       showNotification('Snippet ajouté avec succès ✅');
+      setCurrentPage(1);
     } catch (error) {
       showNotification("Erreur lors de l'ajout", 'error');
     }
@@ -195,12 +203,22 @@ export default function App() {
     }
   };
 
+  // Pagination logic
+  const totalPages = Math.ceil(snippets.length / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentSnippets = snippets.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+  const goPrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
+  const goNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
+
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* 🎨 Fond noir animé */}
+      {/* 🎨 Fond noir */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute w-full h-full bg-black" />
-        <div className="absolute w-full h-full bg-[url('https://transparenttextures.com/patterns/asfalt-light.png')] opacity-10" />
+        <div
+          className="absolute w-full h-full bg-[url('https://transparenttextures.com/patterns/asfalt-light.png')] opacity-10"
+        />
         <div className="absolute w-full h-full overflow-hidden">
           {Array.from({ length: 20 }).map((_, i) => (
             <div
@@ -222,6 +240,7 @@ export default function App() {
       <Stars count={150} />
       <FloatingFunctions />
 
+      {/* 🔔 Notifications */}
       <AnimatePresence>
         {notification && (
           <motion.div
@@ -241,18 +260,61 @@ export default function App() {
         💡 1Fonction - Snippets Hub
       </h1>
 
+      {/* Formulaire stylisé comme une carte/image */}
       <motion.form
         onSubmit={handleSubmit}
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-3xl mx-auto bg-white/80 backdrop-blur p-6 rounded-lg shadow-lg"
+        className="
+          max-w-3xl mx-auto 
+          bg-gradient-to-br from-blue-600 via-purple-700 to-pink-600
+          bg-opacity-90
+          p-8 rounded-3xl shadow-2xl
+          backdrop-blur-md
+          border border-white/30
+          text-white
+        "
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" name="title" placeholder="Titre" value={form.title} onChange={handleChange} className="border rounded p-3" />
-          <input type="text" name="description" placeholder="Description" value={form.description} onChange={handleChange} className="border rounded p-3" />
-          <select name="category" value={form.category} onChange={handleChange} className="border rounded p-3" required>
-            <option value="">Choisir catégorie</option>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <input
+            type="text"
+            name="title"
+            placeholder="Titre"
+            value={form.title}
+            onChange={handleChange}
+            className="
+              bg-white/20 border border-white/50 rounded-lg p-3 
+              text-white placeholder-white
+              focus:outline-none focus:ring-2 focus:ring-white
+            "
+          />
+          <input
+            type="text"
+            name="description"
+            placeholder="Description"
+            value={form.description}
+            onChange={handleChange}
+            className="
+              bg-white/20 border border-white/50 rounded-lg p-3 
+              text-white placeholder-white
+              focus:outline-none focus:ring-2 focus:ring-white
+            "
+          />
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            required
+            className="
+              bg-white/20 border border-white/50 rounded-lg p-3 
+              text-white placeholder-white
+              focus:outline-none focus:ring-2 focus:ring-white
+            "
+          >
+            <option value="" disabled>
+              Choisir catégorie
+            </option>
             <option value="PHP">PHP</option>
             <option value="HTML">HTML</option>
             <option value="CSS">CSS</option>
@@ -264,63 +326,116 @@ export default function App() {
           value={form.code}
           onChange={handleChange}
           rows={6}
-          className="border rounded p-3 mt-4 w-full font-mono text-sm"
+          className="
+            bg-white/20 border border-white/50 rounded-lg p-3 mt-6 w-full 
+            font-mono text-sm text-white placeholder-white
+            focus:outline-none focus:ring-2 focus:ring-white resize-none
+          "
         />
-        <button type="submit" className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-all">
+        <button
+          type="submit"
+          className="
+            mt-6 bg-white text-purple-700 font-semibold px-8 py-3 rounded-full
+            hover:bg-white/90 transition
+          "
+        >
           ➕ Ajouter
         </button>
       </motion.form>
 
+      {/* Filtres */}
       <div className="max-w-3xl mx-auto mt-10 flex justify-center gap-3 flex-wrap">
         {['', 'PHP', 'HTML', 'CSS'].map((cat) => (
           <button
             key={cat || 'all'}
             onClick={() => setFilter(cat)}
-            className={`px-4 py-2 rounded shadow ${
-              filter === cat ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'
-            } hover:scale-105 transition-transform`}
+            className={`
+              px-4 py-2 rounded shadow ${
+                filter === cat ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'
+              } hover:scale-105 transition-transform
+            `}
           >
             {cat || 'Tous'}
           </button>
         ))}
       </div>
 
+      {/* Liste des snippets paginée */}
       <div className="max-w-3xl mx-auto mt-10 space-y-6">
         {snippets.length === 0 && (
           <p className="text-center text-gray-300 text-lg">Aucun snippet trouvé.</p>
         )}
         <AnimatePresence>
-          {snippets.map((snippet) => (
+          {currentSnippets.map((snippet) => (
             <motion.div
               key={snippet.id}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-4 rounded shadow hover:shadow-xl transition-all"
+              className="
+                bg-gradient-to-br from-gray-800 via-gray-900 to-black
+                p-6 rounded-3xl shadow-2xl border border-white/20 text-white
+              "
             >
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xl font-semibold text-blue-800">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-2xl font-semibold text-purple-300">
                   {snippet.title}
-                  <span className="text-sm bg-gray-200 px-2 py-1 rounded ml-2">
+                  <span className="text-sm bg-purple-700 bg-opacity-40 px-3 py-1 rounded ml-3">
                     {snippet.category}
                   </span>
                 </h2>
                 <button
                   onClick={() => copyToClipboard(snippet.code)}
-                  className="text-blue-500 hover:underline text-sm"
+                  className="text-purple-400 hover:text-purple-200 text-sm transition"
+                  title="Copier le code"
                 >
                   📋 Copier
                 </button>
               </div>
-              <p className="mb-2 text-gray-700">{snippet.description}</p>
-              <pre className="bg-gray-900 text-white rounded p-3 overflow-x-auto font-mono text-sm whitespace-pre-wrap">
+              <p className="mb-4 text-purple-200">{snippet.description}</p>
+              <pre className="bg-gray-900 text-white rounded-lg p-4 overflow-x-auto font-mono text-sm whitespace-pre-wrap">
                 {snippet.code}
               </pre>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="max-w-3xl mx-auto mt-6 flex justify-center gap-4">
+          <button
+            onClick={goPrev}
+            disabled={currentPage === 1}
+            className={`
+              px-4 py-2 rounded-full font-semibold ${
+                currentPage === 1
+                  ? 'bg-gray-500 cursor-not-allowed text-gray-300'
+                  : 'bg-purple-600 text-white hover:bg-purple-700'
+              } transition
+            `}
+          >
+            Précédent
+          </button>
+          <span className="text-white self-center">
+            Page {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={goNext}
+            disabled={currentPage === totalPages}
+            className={`
+              px-4 py-2 rounded-full font-semibold ${
+                currentPage === totalPages
+                  ? 'bg-gray-500 cursor-not-allowed text-gray-300'
+                  : 'bg-purple-600 text-white hover:bg-purple-700'
+              } transition
+            `}
+          >
+            Suivant
+          </button>
+        </div>
+      )}
     </div>
   );
 }
