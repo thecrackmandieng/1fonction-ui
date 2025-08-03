@@ -2,22 +2,152 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_URL = ' http://127.0.0.1:8000/api/snippets';
+const API_URL = 'http://127.0.0.1:8000/api/snippets';
+
+function Stars({ count = 150 }) {
+  const stars = Array.from({ length: count }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    size: Math.random() * 2 + 1,
+    delay: Math.random() * 5,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+      {stars.map(({ id, left, top, size, delay }) => (
+        <motion.div
+          key={id}
+          className="bg-white rounded-full"
+          style={{
+            position: 'absolute',
+            left: `${left}%`,
+            top: `${top}%`,
+            width: size,
+            height: size,
+            opacity: 0.8,
+          }}
+          animate={{ opacity: [0.2, 1, 0.2] }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            delay,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function FloatingFunctions() {
+  const functions = [
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-blue-400 font-bold">function</span>{' '}
+          <span className="text-orange-400">greet</span>() {'{ '}
+          <span className="text-purple-400">console.log</span>('Hello React'); {'}'}
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-purple-400">body</span> {'{ '}
+          <span className="text-green-400">background-color:</span>{' '}
+          <span className="text-red-400">#f0f0f0</span>; {'}'}
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-pink-400 font-bold">&lt;?php</span> echo{' '}
+          <span className="text-red-400">'Hello PHP!'</span>;
+          <span className="text-pink-400 font-bold">?&gt;</span>
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-blue-400 font-bold">public void</span>{' '}
+          <span className="text-orange-400">run</span>() {'{ '}
+          <span className="text-purple-400">System.out.println</span>('Java'); {'}'}
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-purple-400">const</span>{' '}
+          <span className="text-orange-400">sum</span> = (a, b) =&gt; a + b;
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-purple-400">console.log</span>('Développement');
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-blue-400 font-bold">if</span> (isActive) {'{ '}start(); {' }'}
+        </span>
+      )
+    },
+    {
+      code: (
+        <span className="text-white">
+          <span className="text-purple-400">.container</span> {'{ '}
+          <span className="text-green-400">display:</span> flex; {'}'}
+        </span>
+      )
+    },
+  ];
+
+  return (
+    <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden select-none font-mono text-lg">
+      {functions.map(({ code }, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          style={{
+            top: `${(i * 12) + 5}%`,
+            left: `${(i * 30) % 100}%`,
+            filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.6))',
+            whiteSpace: 'nowrap',
+          }}
+          animate={{
+            y: ['0%', '-20%', '0%'],
+            x: ['0%', '15%', '0%'],
+            opacity: [0.4, 0.9, 0.4],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: i * 1.2,
+          }}
+        >
+          {code}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 export default function App() {
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    category: '',
-    code: '',
-  });
+  const [form, setForm] = useState({ title: '', description: '', category: '', code: '' });
   const [snippets, setSnippets] = useState([]);
   const [filter, setFilter] = useState('');
-  const [notification, setNotification] = useState(null); // message de succès ou erreur
+  const [notification, setNotification] = useState(null);
 
-  useEffect(() => {
-    fetchSnippets();
-  }, [filter]);
+  useEffect(() => { fetchSnippets(); }, [filter]);
 
   const fetchSnippets = async () => {
     try {
@@ -52,7 +182,7 @@ export default function App() {
       fetchSnippets();
       showNotification('Snippet ajouté avec succès ✅');
     } catch (error) {
-      showNotification('Erreur lors de l\'ajout', 'error');
+      showNotification("Erreur lors de l'ajout", 'error');
     }
   };
 
@@ -66,8 +196,32 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 p-6 relative">
-      {/* Notification */}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 🎨 Fond noir animé */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute w-full h-full bg-black" />
+        <div className="absolute w-full h-full bg-[url('https://transparenttextures.com/patterns/asfalt-light.png')] opacity-10" />
+        <div className="absolute w-full h-full overflow-hidden">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-white bg-opacity-20 rounded-full animate-bubble"
+              style={{
+                width: `${Math.random() * 80 + 30}px`,
+                height: `${Math.random() * 80 + 30}px`,
+                left: `${Math.random() * 100}%`,
+                bottom: `-${Math.random() * 200}px`,
+                animationDelay: `${Math.random() * 15}s`,
+                animationDuration: `${18 + Math.random() * 12}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <Stars count={150} />
+      <FloatingFunctions />
+
       <AnimatePresence>
         {notification && (
           <motion.div
@@ -83,11 +237,10 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <h1 className="text-5xl font-bold text-center text-blue-700 mb-12 drop-shadow">
+      <h1 className="text-5xl font-bold text-center text-blue-300 mb-12 drop-shadow">
         💡 1Fonction - Snippets Hub
       </h1>
 
-      {/* Form */}
       <motion.form
         onSubmit={handleSubmit}
         initial={{ opacity: 0, y: 30 }}
@@ -118,7 +271,6 @@ export default function App() {
         </button>
       </motion.form>
 
-      {/* Filtres */}
       <div className="max-w-3xl mx-auto mt-10 flex justify-center gap-3 flex-wrap">
         {['', 'PHP', 'HTML', 'CSS'].map((cat) => (
           <button
@@ -133,10 +285,9 @@ export default function App() {
         ))}
       </div>
 
-      {/* Liste des snippets */}
       <div className="max-w-3xl mx-auto mt-10 space-y-6">
         {snippets.length === 0 && (
-          <p className="text-center text-gray-600 text-lg">Aucun snippet trouvé.</p>
+          <p className="text-center text-gray-300 text-lg">Aucun snippet trouvé.</p>
         )}
         <AnimatePresence>
           {snippets.map((snippet) => (
@@ -163,7 +314,7 @@ export default function App() {
                 </button>
               </div>
               <p className="mb-2 text-gray-700">{snippet.description}</p>
-              <pre className="bg-gray-100 rounded p-3 overflow-x-auto font-mono text-sm whitespace-pre-wrap">
+              <pre className="bg-gray-900 text-white rounded p-3 overflow-x-auto font-mono text-sm whitespace-pre-wrap">
                 {snippet.code}
               </pre>
             </motion.div>
