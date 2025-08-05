@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_URL = 'http://127.0.0.1:8000/api/snippets';
+const API_URL = 'https://onefonction-1.onrender.com/api/snippets';
 const ITEMS_PER_PAGE = 3;
 
 // ⭐ Étoiles scintillantes
